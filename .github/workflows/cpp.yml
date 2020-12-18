@@ -7,6 +7,7 @@ on:
     tags:
       - '*'
 env:
+  isNightly: ${{ contains(github.ref, 'dev') }}
   isReleaseCandidate: ${{ contains(github.ref, 'tags') && contains(github.ref, '-rc') }}
   isFinalRelease: ${{ contains(github.ref, 'tags') && !contains(github.ref, '-rc') }}
 
@@ -29,8 +30,8 @@ jobs:
     - name: Update APT repositories
       run: sudo apt-get update
 
-    - name: Install libc ARM cross compiler
-      run: sudo apt-get -y install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+    # - name: Install libc ARM cross compiler
+    #   run: sudo apt-get -y install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
 
     - name: Get uClibc toolchain
       uses: i3h/download-release-asset@v1
@@ -46,14 +47,14 @@ jobs:
     - name: Install dependencies
       run: sudo apt-get -y install libssl-dev:armhf
 
-    - name: Generate makefiles for libc ARM
-      run: ./genMakefiles armv7linux-no-openssl
+    # - name: Generate makefiles for libc ARM
+    #   run: ./genMakefiles armv7linux-no-openssl
 
-    - name: Compile libc
-      run: make
+    # - name: Compile libc
+    #   run: make
 
-    - name: Copy libc executable
-      run: cd rtspserver && mkdir -p bin/libc && cp rtspserver bin/libc/
+    # - name: Copy libc executable
+    #   run: cd rtspserver && mkdir -p bin/libc && cp rtspserver bin/libc/
 
     - name: Generate makefiles for uClibc ARM
       run: make clean && make distclean && ./genMakefiles armv7linux-uclibc-no-openssl
@@ -61,25 +62,36 @@ jobs:
     - name: Compile uClibc
       run: make
 
-    - name: Copy uClibc executable
-      run: cd rtspserver && mkdir -p bin/uclibc && cp rtspserver bin/uclibc/
+    # - name: Copy uClibc executable
+    #   run: cd rtspserver && mkdir -p bin/uclibc && cp rtspserver bin/uclibc/
 
-    - name: Package binaries
-      run: cd rtspserver/bin && tar -cvf rtspserver.tar *
+    # - name: Package binaries
+    #   run: cd rtspserver/bin && tar -cvf rtspserver.tar *
 
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v1
       with:
         name: rtpserver
-        path: rtspserver/bin/rtspserver.tar
+        path: rtspserver/bin/rtspserver
 
-    - name: Release (pre-release)
-      if: env.isReleaseCandidate == 'true'
+    - name: Update dev tag
+      if: env.isNightly == 'true'
       uses: ncipollo/release-action@v1
       with:
+        allowUpdates: true
+        artifacts: bin/rtspserver
+        draft: true
+        replacesArtifacts: true
+        tag : dev
         token: ${{ secrets.GITHUB_TOKEN }}
-        prerelease: true
-        artifacts: rtspserver/bin/rtspserver.tar
+
+    # - name: Release (pre-release)
+    #   if: env.isReleaseCandidate == 'true'
+    #   uses: ncipollo/release-action@v1
+    #   with:
+    #     token: ${{ secrets.GITHUB_TOKEN }}
+    #     prerelease: true
+    #     artifacts: rtspserver/bin/rtspserver
         
     - name: Update latest-rc tag
       if: env.isReleaseCandidate == 'true'
@@ -90,14 +102,14 @@ jobs:
         allowUpdates: true
         replacesArtifacts: true
         prerelease: true
-        artifacts: rtspserver/bin/rtspserver.tar
+        artifacts: rtspserver/bin/rtspserver
 
-    - name: Release (final)
-      if: env.isFinalRelease == 'true'
-      uses: ncipollo/release-action@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: rtspserver/rtspserver.tar
+    # - name: Release (final)
+    #   if: env.isFinalRelease == 'true'
+    #   uses: ncipollo/release-action@v1
+    #   with:
+    #     token: ${{ secrets.GITHUB_TOKEN }}
+    #     artifacts: rtspserver/rtspserver
         
     - name: Update latest tag
       if: env.isFinalRelease == 'true'
@@ -107,4 +119,4 @@ jobs:
         tag: latest
         allowUpdates: true
         replacesArtifacts: true
-        artifacts: rtspserver/bin/rtspserver.tar
+        artifacts: rtspserver/bin/rtspserver
