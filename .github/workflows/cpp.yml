@@ -72,6 +72,15 @@ jobs:
         name: rtpserver
         path: rtspserver/rtspserver
 
+    - name: Release (dev)
+      if: env.isNightly == 'true'
+      uses: ncipollo/release-action@v1
+      with:
+        prerelease: true
+        tag : dev
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: rtspserver/rtspserver
+
     - name: Update dev tag
       if: env.isNightly == 'true'
       uses: ncipollo/release-action@v1
