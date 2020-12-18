@@ -80,6 +80,7 @@ jobs:
       with:
         allowUpdates: true
         artifacts: rtspserver/rtspserver
+        commit: dev
         draft: true
         replacesArtifacts: true
         tag : dev
