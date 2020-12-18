@@ -6,18 +6,16 @@ on:
       - '*'
     tags:
       - '*'
+
 env:
   isNightly: ${{ contains(github.ref, 'dev') }}
-  isReleaseCandidate: ${{ contains(github.ref, 'tags') && contains(github.ref, '-rc') }}
-  isFinalRelease: ${{ contains(github.ref, 'tags') && !contains(github.ref, '-rc') }}
+  isReleaseCandidate: ${{ contains(github.ref, 'tags') && contains(github.ref, 'rc-') }}
+  isFinalRelease: ${{ contains(github.ref, 'tags') && contains(github.ref, 'release-') }}
 
 jobs:
   build:
-
     runs-on: ubuntu-18.04
-
     steps:
-
     - name: Checkout source code
       uses: actions/checkout@v2
 
@@ -81,7 +79,7 @@ jobs:
         allowUpdates: true
         artifacts: rtspserver/rtspserver
         commit: dev
-        draft: true
+        prerelease: true
         replacesArtifacts: true
         tag : dev
         token: ${{ secrets.GITHUB_TOKEN }}
