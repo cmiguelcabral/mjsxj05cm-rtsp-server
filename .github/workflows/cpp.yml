@@ -72,14 +72,14 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: rtpserver
-        path: rtspserver/bin/rtspserver
+        path: rtspserver/rtspserver
 
     - name: Update dev tag
       if: env.isNightly == 'true'
       uses: ncipollo/release-action@v1
       with:
         allowUpdates: true
-        artifacts: bin/rtspserver
+        artifacts: rtspserver/rtspserver
         draft: true
         replacesArtifacts: true
         tag : dev
@@ -102,7 +102,7 @@ jobs:
         allowUpdates: true
         replacesArtifacts: true
         prerelease: true
-        artifacts: rtspserver/bin/rtspserver
+        artifacts: rtspserver/rtspserver
 
     # - name: Release (final)
     #   if: env.isFinalRelease == 'true'
@@ -119,4 +119,4 @@ jobs:
         tag: latest
         allowUpdates: true
         replacesArtifacts: true
-        artifacts: rtspserver/bin/rtspserver
+        artifacts: rtspserver/rtspserver
